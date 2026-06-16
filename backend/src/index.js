@@ -32,10 +32,10 @@ export default {
     const emailPayload = {
       personalizations: [
         {
-          to: [{ email: "YOUR_TARGET_EMAIL@example.com" }]
+          to: [{ email: "craigjduffy@icloud.com" }]
         }
       ],
-      from: { email: "no-reply@yourdomain.com" },
+      from: { email: "edinburghla@eis.org.uk" },
       subject: `Expenses from ${name}`,
       content: [
         {
