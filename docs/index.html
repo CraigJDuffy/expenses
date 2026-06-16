@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Expenses Form</title>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     :root {
       --bg: #f5f7fa;
@@ -12,6 +14,7 @@
       --primary-dark: #004c99;
       --border: #d9d9d9;
       --radius: 12px;
+      --text: #222;
     }
 
     * {
@@ -23,6 +26,8 @@
       background: var(--bg);
       margin: 0;
       padding: 16px;
+      color: var(--text);
+      font-size: 18px; /* ⭐ Bigger base font for mobile */
     }
 
     .container {
@@ -41,22 +46,23 @@
     h2, h3 {
       margin-top: 0;
       font-weight: 600;
+      font-size: 24px;
     }
 
     label {
       display: block;
-      font-size: 14px;
-      margin-top: 10px;
-      margin-bottom: 4px;
+      font-size: 16px;
+      margin-top: 14px;
+      margin-bottom: 6px;
     }
 
     input, button {
       width: 100%;
-      padding: 12px;
-      margin: 4px 0 10px 0;
+      padding: 16px; /* ⭐ Larger tap targets */
+      margin: 4px 0 14px 0;
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      font-size: 16px;
+      font-size: 18px;
     }
 
     input:focus {
@@ -71,6 +77,8 @@
       border: none;
       cursor: pointer;
       font-weight: 600;
+      font-size: 20px;
+      padding: 18px;
     }
 
     button:hover {
@@ -80,21 +88,21 @@
     .expense-block {
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 12px;
-      margin-top: 10px;
+      padding: 16px;
+      margin-top: 16px;
       background: #fafbfc;
     }
 
     .expense-title {
       font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 14px;
+      margin-bottom: 10px;
+      font-size: 18px;
     }
 
     #totalDisplay {
-      font-size: 1.3em;
+      font-size: 22px;
       font-weight: bold;
-      margin-top: 12px;
+      margin-top: 16px;
       text-align: right;
       color: var(--primary-dark);
     }
@@ -109,11 +117,11 @@
 
       <form id="expensesForm" enctype="multipart/form-data">
 
-        <label for="name">Name</label>
-        <input id="name" type="text" name="name" placeholder="Your Name" required>
+        <label>Name</label>
+        <input type="text" name="name" placeholder="Your Name" required>
 
-        <label for="membership">Membership Number</label>
-        <input id="membership" type="text" name="membership" placeholder="Membership Number" required>
+        <label>Membership Number</label>
+        <input type="text" name="membership" placeholder="Membership Number" required>
 
         <h3>Expenses</h3>
         <div id="expenses"></div>
@@ -131,11 +139,11 @@
         <input type="file" name="receipt3">
 
         <h3>Bank Details</h3>
-        <label for="account_number">Account Number</label>
-        <input id="account_number" type="text" name="account_number" placeholder="Account Number" required>
+        <label>Account Number</label>
+        <input type="text" name="account_number" placeholder="Account Number" required>
 
-        <label for="sort_code">Sort Code</label>
-        <input id="sort_code" type="text" name="sort_code" placeholder="Sort Code" required>
+        <label>Sort Code</label>
+        <input type="text" name="sort_code" placeholder="Sort Code" required>
 
         <button type="submit">Submit</button>
       </form>
@@ -193,7 +201,6 @@
       alert(await response.text());
     });
 
-    // Start with one expense by default (optional)
     addExpense();
   </script>
 
