@@ -25,13 +25,9 @@ export default {
 
     const name = form.get("name");
     const membership = form.get("membership");
-    const accountNumber = form.get("account_number");
-    const sortCode = form.get("sort_code");
 
     console.log("Name:", name);
     console.log("Membership:", membership);
-    console.log("Account Number:", accountNumber);
-    console.log("Sort Code:", sortCode);
 
     // --- Collect expenses ---
     let expensesText = "";
@@ -63,10 +59,6 @@ Membership: ${membership}
 
 Expenses:
 ${expensesText}
-
-Bank Details:
-Account Number: ${accountNumber}
-Sort Code: ${sortCode}
 `,
       attachments
     };
