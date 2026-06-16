@@ -14,6 +14,10 @@
       --radius: 12px;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
       background: var(--bg);
@@ -39,14 +43,20 @@
       font-weight: 600;
     }
 
+    label {
+      display: block;
+      font-size: 14px;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
     input, button {
       width: 100%;
-      padding: 14px;
-      margin: 8px 0;
+      padding: 12px;
+      margin: 4px 0 10px 0;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       font-size: 16px;
-      box-sizing: border-box;
     }
 
     input:focus {
@@ -67,35 +77,26 @@
       background: var(--primary-dark);
     }
 
-    /* ⭐ TRUE MOBILE-FIRST GRID */
-    .expense-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+    .expense-block {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-top: 10px;
+      background: #fafbfc;
     }
 
-    /* ⭐ Small tablets: 2 columns */
-    @media (min-width: 420px) {
-      .expense-row {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    /* ⭐ Larger tablets & desktop: 3 columns */
-    @media (min-width: 600px) {
-      .expense-row {
-        grid-template-columns: 1fr 2fr 1fr;
-      }
+    .expense-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
     #totalDisplay {
-      font-size: 1.4em;
+      font-size: 1.3em;
       font-weight: bold;
       margin-top: 12px;
       text-align: right;
       color: var(--primary-dark);
-      padding: 10px 0;
     }
   </style>
 </head>
@@ -108,8 +109,11 @@
 
       <form id="expensesForm" enctype="multipart/form-data">
 
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="text" name="membership" placeholder="Membership Number" required>
+        <label for="name">Name</label>
+        <input id="name" type="text" name="name" placeholder="Your Name" required>
+
+        <label for="membership">Membership Number</label>
+        <input id="membership" type="text" name="membership" placeholder="Membership Number" required>
 
         <h3>Expenses</h3>
         <div id="expenses"></div>
@@ -119,13 +123,19 @@
         <div id="totalDisplay">Total: £0.00</div>
 
         <h3>Receipts</h3>
+        <label>Receipt 1</label>
         <input type="file" name="receipt1">
+        <label>Receipt 2</label>
         <input type="file" name="receipt2">
+        <label>Receipt 3</label>
         <input type="file" name="receipt3">
 
         <h3>Bank Details</h3>
-        <input type="text" name="account_number" placeholder="Account Number" required>
-        <input type="text" name="sort_code" placeholder="Sort Code" required>
+        <label for="account_number">Account Number</label>
+        <input id="account_number" type="text" name="account_number" placeholder="Account Number" required>
+
+        <label for="sort_code">Sort Code</label>
+        <input id="sort_code" type="text" name="sort_code" placeholder="Sort Code" required>
 
         <button type="submit">Submit</button>
       </form>
@@ -140,14 +150,21 @@
       expenseCount++;
       const container = document.getElementById("expenses");
 
-      const row = document.createElement("div");
-      row.className = "expense-row";
-      row.innerHTML = `
+      const block = document.createElement("div");
+      block.className = "expense-block";
+      block.innerHTML = `
+        <div class="expense-title">Expense ${expenseCount}</div>
+
+        <label>Date</label>
         <input type="date" name="expense_${expenseCount}_date" required>
+
+        <label>Details</label>
         <input type="text" name="expense_${expenseCount}_details" placeholder="Details" required>
+
+        <label>Amount (£)</label>
         <input type="number" name="expense_${expenseCount}_amount" placeholder="Amount (£)" step="0.01" required oninput="updateTotal()">
       `;
-      container.appendChild(row);
+      container.appendChild(block);
 
       updateTotal();
     }
@@ -175,6 +192,9 @@
 
       alert(await response.text());
     });
+
+    // Start with one expense by default (optional)
+    addExpense();
   </script>
 
 </body>
