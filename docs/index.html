@@ -1,26 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Expenses Submission</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expenses Form</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .expense-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      box-sizing: border-box;
+    }
+
+    #addExpense {
+      background: #0078ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #addExpense:hover {
+      background: #005fcc;
+    }
+
+    button[type="submit"] {
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background: darkgreen;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Expense Submission</h2>
+  <h1>Submit Expenses</h1>
 
-<form id="expenseForm" enctype="multipart/form-data">
-  <input type="text" name="name" placeholder="Full Name" required>
-  <input type="text" name="membership" placeholder="Membership Number" required>
+  <button id="addExpense">Add Expense</button>
 
-  <h3>Expenses</h3>
-  <div id="expenses"></div>
+  <form id="expenseForm">
 
-  <button type="button" onclick="addExpense()">Add Expense</button>
-  <button type="submit">Submit</button>
-</form>
+    <h3>Your Details</h3>
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="text" name="membership" placeholder="Membership Number" required>
 
-<script src="script.js"></script>
+    <h3>Expenses</h3>
+    <div id="expenses"></div>
+
+    <button type="submit">Submit Expenses</button>
+  </form>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
