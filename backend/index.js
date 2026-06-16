@@ -1,3 +1,13 @@
+function arrayBufferToBase64(buffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 export default {
   async fetch(request, env) {
 
@@ -25,9 +35,13 @@ export default {
 
     const name = form.get("name");
     const membership = form.get("membership");
+    const accountNumber = form.get("account_number");
+    const sortCode = form.get("sort_code");
 
     console.log("Name:", name);
     console.log("Membership:", membership);
+    console.log("Account Number:", accountNumber);
+    console.log("Sort Code:", sortCode);
 
     // --- Collect expenses ---
     let expensesText = "";
@@ -44,7 +58,7 @@ export default {
         const buffer = await value.arrayBuffer();
         attachments.push({
           filename: value.name,
-          content: btoa(String.fromCharCode(...new Uint8Array(buffer)))
+          content: arrayBufferToBase64(buffer)
         });
       }
     }
@@ -52,14 +66,35 @@ export default {
     // --- Build email payload ---
     const emailPayload = {
       from: "Expenses Form <onboarding@resend.dev>",
-      to: ["9084082@ea.edin.sch.uk"],   // Resend test-mode requirement
+      to: ["9084082@ea.edin.sch.uk"],
+
       subject: `Expenses from ${name}`,
+
       text: `Name: ${name}
 Membership: ${membership}
 
 Expenses:
 ${expensesText}
+
+Bank Details:
+Account Number: ${accountNumber}
+Sort Code: ${sortCode}
 `,
+
+      html: `
+        <h2>Expenses Submission</h2>
+
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Membership:</strong> ${membership}</p>
+
+        <h3>Expenses</h3>
+        <pre>${expensesText}</pre>
+
+        <h3>Bank Details</h3>
+        <p><strong>Account Number:</strong> ${accountNumber}</p>
+        <p><strong>Sort Code:</strong> ${sortCode}</p>
+      `,
+
       attachments
     };
 
