@@ -1,78 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expenses Form</title>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 10px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .expense-item {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      box-sizing: border-box;
-    }
-
-    #addExpense {
-      background: #0078ff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #addExpense:hover {
-      background: #005fcc;
-    }
-
-    button[type="submit"] {
-      background: green;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button[type="submit"]:hover {
-      background: darkgreen;
-    }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; }
+    input, button { width: 100%; padding: 10px; margin: 8px 0; }
+    .expense-row { display: flex; gap: 10px; }
+    .expense-row input { flex: 1; }
   </style>
 </head>
-
 <body>
 
-  <h1>Submit Expenses</h1>
+  <h2>Expenses Submission</h2>
 
-  <button id="addExpense">Add Expense</button>
+  <form id="expensesForm" enctype="multipart/form-data">
 
-  <form id="expenseForm">
-
-    <h3>Your Details</h3>
     <input type="text" name="name" placeholder="Your Name" required>
     <input type="text" name="membership" placeholder="Membership Number" required>
 
     <h3>Expenses</h3>
     <div id="expenses"></div>
 
-    <button type="submit">Submit Expenses</button>
+    <button type="button" onclick="addExpense()">Add Expense</button>
+
+    <h3>Receipts</h3>
+    <input type="file" name="receipt1">
+    <input type="file" name="receipt2">
+    <input type="file" name="receipt3">
+
+    <h3>Bank Details</h3>
+    <input type="text" name="account_number" placeholder="Account Number" required>
+    <input type="text" name="sort_code" placeholder="Sort Code" required>
+
+    <button type="submit">Submit</button>
   </form>
 
-  <script src="script.js"></script>
+  <script>
+    let expenseCount = 0;
+
+    function addExpense() {
+      expenseCount++;
+      const container = document.getElementById("expenses");
+
+      const row = document.createElement("div");
+      row.className = "expense-row";
+      row.innerHTML = `
+        <input type="text" name="expense_${expenseCount}_date" placeholder="Date" required>
+        <input type="text" name="expense_${expenseCount}_details" placeholder="Details" required>
+        <input type="number" name="expense_${expenseCount}_amount" placeholder="Amount" required>
+      `;
+      container.appendChild(row);
+    }
+
+    document.getElementById("expensesForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const response = await fetch("https://expenses-backend.cjduffyexpenses.workers.dev/", {
+        method: "POST",
+        body: formData
+      });
+
+      alert(await response.text());
+    });
+  </script>
+
 </body>
 </html>
