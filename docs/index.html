@@ -3,38 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <title>Expenses Form</title>
+
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; }
-    input, button { width: 100%; padding: 10px; margin: 8px 0; }
-    .expense-row { display: flex; gap: 10px; }
-    .expense-row input { flex: 1; }
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --primary: #0066cc;
+      --primary-dark: #004c99;
+      --border: #d9d9d9;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      font-weight: 600;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    .expense-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .expense-row input {
+      flex: 1 1 calc(33% - 10px);
+      min-width: 120px;
+    }
+
+    #totalDisplay {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: right;
+      color: var(--primary-dark);
+    }
+
+    @media (max-width: 480px) {
+      .expense-row input {
+        flex: 1 1 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <div class="container">
 
-  <h2>Expenses Submission</h2>
+    <div class="card">
+      <h2>Expenses Submission</h2>
 
-  <form id="expensesForm" enctype="multipart/form-data">
+      <form id="expensesForm" enctype="multipart/form-data">
 
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="text" name="membership" placeholder="Membership Number" required>
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="text" name="membership" placeholder="Membership Number" required>
 
-    <h3>Expenses</h3>
-    <div id="expenses"></div>
+        <h3>Expenses</h3>
+        <div id="expenses"></div>
 
-    <button type="button" onclick="addExpense()">Add Expense</button>
+        <button type="button" onclick="addExpense()">+ Add Expense</button>
 
-    <h3>Receipts</h3>
-    <input type="file" name="receipt1">
-    <input type="file" name="receipt2">
-    <input type="file" name="receipt3">
+        <div id="totalDisplay">Total: £0.00</div>
 
-    <h3>Bank Details</h3>
-    <input type="text" name="account_number" placeholder="Account Number" required>
-    <input type="text" name="sort_code" placeholder="Sort Code" required>
+        <h3>Receipts</h3>
+        <input type="file" name="receipt1">
+        <input type="file" name="receipt2">
+        <input type="file" name="receipt3">
 
-    <button type="submit">Submit</button>
-  </form>
+        <h3>Bank Details</h3>
+        <input type="text" name="account_number" placeholder="Account Number" required>
+        <input type="text" name="sort_code" placeholder="Sort Code" required>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+  </div>
 
   <script>
     let expenseCount = 0;
@@ -46,11 +136,25 @@
       const row = document.createElement("div");
       row.className = "expense-row";
       row.innerHTML = `
-        <input type="text" name="expense_${expenseCount}_date" placeholder="Date" required>
+        <input type="date" name="expense_${expenseCount}_date" required>
         <input type="text" name="expense_${expenseCount}_details" placeholder="Details" required>
-        <input type="number" name="expense_${expenseCount}_amount" placeholder="Amount" required>
+        <input type="number" name="expense_${expenseCount}_amount" placeholder="Amount (£)" step="0.01" required oninput="updateTotal()">
       `;
       container.appendChild(row);
+
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let total = 0;
+      const amountInputs = document.querySelectorAll('input[name^="expense_"][name$="_amount"]');
+
+      amountInputs.forEach(input => {
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) total += value;
+      });
+
+      document.getElementById("totalDisplay").textContent = `Total: £${total.toFixed(2)}`;
     }
 
     document.getElementById("expensesForm").addEventListener("submit", async (e) => {
