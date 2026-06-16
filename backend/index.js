@@ -37,9 +37,10 @@ export default {
     // --- Collect attachments safely ---
     const attachments = [];
     for (const [key, value] of form.entries()) {
-      if (value instanceof File && value.size > 0) {
+      if (value instanceof File && value.size && value.size > 0) {
+        const buffer = await value.arrayBuffer();
         attachments.push({
-          content: await value.arrayBuffer(),
+          content: btoa(String.fromCharCode(...new Uint8Array(buffer))),
           filename: value.name,
           type: value.type
         });
@@ -66,22 +67,19 @@ Expenses:
 ${expensesText}`
         }
       ],
-      attachments: attachments.map(a => ({
-        content: btoa(String.fromCharCode(...new Uint8Array(a.content))),
-        filename: a.filename,
-        type: a.type
-      }))
+      attachments
     };
 
     // --- Send email ---
-const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Log-Level": "DEBUG"
-  },
-  body: JSON.stringify(emailPayload)
-});
+    const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Log-Level": "DEBUG"
+      },
+      body: JSON.stringify(emailPayload)
+    });
+
     if (!response.ok) {
       return new Response("Email failed to send", {
         status: 500,
