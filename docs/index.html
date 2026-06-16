@@ -67,16 +67,23 @@
       background: var(--primary-dark);
     }
 
-    /* ⭐ Mobile‑first expense grid */
+    /* ⭐ TRUE MOBILE-FIRST GRID */
     .expense-row {
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
-    /* ⭐ On tablets and up, show 3 columns */
-    @media (min-width: 480px) {
+    /* ⭐ Small tablets: 2 columns */
+    @media (min-width: 420px) {
+      .expense-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ⭐ Larger tablets & desktop: 3 columns */
+    @media (min-width: 600px) {
       .expense-row {
         grid-template-columns: 1fr 2fr 1fr;
       }
