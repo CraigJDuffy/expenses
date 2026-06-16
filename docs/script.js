@@ -19,7 +19,7 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
 
-  const response = await fetch("YOUR_WORKER_URL_HERE", {
+  const response = await fetch("https://cjduffy.workers.dev", {
     method: "POST",
     body: formData
   });
