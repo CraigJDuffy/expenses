@@ -19,7 +19,7 @@ document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
 
-  const response = await fetch("https://expenses-backend.cjduffyexpenses.workers.dev", {
+  const response = await fetch("https://expenses-backend.cjduffyexpenses.workers.dev/", {
     method: "POST",
     body: formData
   });
