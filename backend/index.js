@@ -73,6 +73,7 @@ export default {
     const membership = sanitizeLine((form.get("membership") || "").toString().trim()).slice(0, MAX_FIELD_LENGTH);
     const accountNumber = (form.get("account_number") || "").toString().trim();
     const sortCode = (form.get("sort_code") || "").toString().trim();
+    const useExistingBank = (form.get("use_existing_bank_details") || "").toString() === "true";
 
     if (!name) {
       return new Response("Name is required", {
@@ -88,18 +89,20 @@ export default {
       });
     }
 
-    if (!/^\d{6,8}$/.test(accountNumber)) {
-      return new Response("Account number must be 6-8 digits", {
-        status: 400,
-        headers: corsHeaders(request)
-      });
-    }
+    if (!useExistingBank) {
+      if (!/^\d{6,8}$/.test(accountNumber)) {
+        return new Response("Account number must be 6-8 digits", {
+          status: 400,
+          headers: corsHeaders(request)
+        });
+      }
 
-    if (!/^\d{2}-?\d{2}-?\d{2}$/.test(sortCode)) {
-      return new Response("Sort code must be in the form 00-00-00", {
-        status: 400,
-        headers: corsHeaders(request)
-      });
+      if (!/^\d{2}-?\d{2}-?\d{2}$/.test(sortCode)) {
+        return new Response("Sort code must be in the form 00-00-00", {
+          status: 400,
+          headers: corsHeaders(request)
+        });
+      }
     }
 
     if ((form.get("declaration") || "").toString() !== "confirmed") {
@@ -194,6 +197,14 @@ export default {
       }
     }
 
+    const bankDetailsText = useExistingBank
+      ? "Use bank details already on file for this member."
+      : `Account Number: ${accountNumber}\nSort Code: ${sortCode}`;
+
+    const bankDetailsHtml = useExistingBank
+      ? `<p>Use bank details already on file for this member.</p>`
+      : `<p><strong>Account Number:</strong> ${accountNumber}</p>\n        <p><strong>Sort Code:</strong> ${sortCode}</p>`;
+
     // --- Build email payload ---
     const emailPayload = {
       from: "Expenses Form <onboarding@resend.dev>",
@@ -210,8 +221,7 @@ Expenses:
 ${expensesText}
 
 Bank Details:
-Account Number: ${accountNumber}
-Sort Code: ${sortCode}
+${bankDetailsText}
 
 Declaration: ${name} confirmed the information above is true and accurate.
 `,
@@ -242,8 +252,7 @@ Declaration: ${name} confirmed the information above is true and accurate.
         <p><strong>£${totalAmount.toFixed(2)}</strong></p>
 
         <h3>Bank Details</h3>
-        <p><strong>Account Number:</strong> ${accountNumber}</p>
-        <p><strong>Sort Code:</strong> ${sortCode}</p>
+        ${bankDetailsHtml}
 
         <p style="color:#555;font-size:13px;">${escapeHtml(name)} confirmed the information above is true and accurate.</p>
       `,

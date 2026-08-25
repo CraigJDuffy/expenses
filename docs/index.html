@@ -114,6 +114,12 @@
       max-width: 200px;
     }
 
+    input:disabled {
+      background: #f1f2f4;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
     button {
       width: 100%;
       padding: 16px;
@@ -296,8 +302,14 @@
 
       <div class="card">
         <h3>Bank Details</h3>
+
+        <div class="declaration">
+          <input type="checkbox" id="useExistingBank" name="use_existing_bank_details" value="true">
+          <label for="useExistingBank">Use bank details EIS Edinburgh already have for me</label>
+        </div>
+
         <label>Account Number</label>
-        <input type="text" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
+        <input type="text" id="accountNumber" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
 
         <label>Sort Code</label>
         <input type="text" id="sortCode" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" maxlength="8" required>
@@ -415,6 +427,17 @@
     document.getElementById("sortCode").addEventListener("input", (e) => {
       const digits = e.target.value.replace(/\D/g, "").slice(0, 6);
       e.target.value = digits.match(/.{1,2}/g)?.join("-") || digits;
+    });
+
+    document.getElementById("useExistingBank").addEventListener("change", (e) => {
+      const accountNumberInput = document.getElementById("accountNumber");
+      const sortCodeInput = document.getElementById("sortCode");
+      accountNumberInput.disabled = e.target.checked;
+      sortCodeInput.disabled = e.target.checked;
+      if (e.target.checked) {
+        accountNumberInput.value = "";
+        sortCodeInput.value = "";
+      }
     });
 
     form.addEventListener("submit", async (e) => {
