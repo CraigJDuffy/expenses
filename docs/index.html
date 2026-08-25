@@ -110,6 +110,10 @@
       font-size: 15px;
     }
 
+    input[type="date"] {
+      max-width: 200px;
+    }
+
     button {
       width: 100%;
       padding: 16px;
@@ -272,6 +276,9 @@
         <h3>Your Details</h3>
         <label>Name</label>
         <input type="text" name="name" placeholder="Your Name" required>
+
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
 
         <label>Membership Number <span style="font-weight:400;">(if known)</span></label>
         <input type="text" name="membership" placeholder="Membership Number">

@@ -57,12 +57,20 @@ export default {
     const form = await request.formData();
 
     const name = (form.get("name") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
+    const email = (form.get("email") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
     const membership = (form.get("membership") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
     const accountNumber = (form.get("account_number") || "").toString().trim();
     const sortCode = (form.get("sort_code") || "").toString().trim();
 
     if (!name) {
       return new Response("Name is required", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return new Response("A valid email address is required", {
         status: 400,
         headers: corsHeaders(request)
       });
@@ -172,10 +180,12 @@ export default {
     const emailPayload = {
       from: "Expenses Form <onboarding@resend.dev>",
       to: ["9084082@ea.edin.sch.uk"],
+      reply_to: [email],
 
       subject: `Expenses from ${name}`,
 
       text: `Name: ${name}
+Email: ${email}
 Membership: ${membership || "Not provided"}
 
 Expenses:
@@ -192,6 +202,7 @@ Declaration: ${name} confirmed the information above is true and accurate.
         <h2>Expenses Submission</h2>
 
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Membership:</strong> ${escapeHtml(membership) || "Not provided"}</p>
 
         <h3>Expenses</h3>
