@@ -61,8 +61,8 @@ export default {
     const accountNumber = (form.get("account_number") || "").toString().trim();
     const sortCode = (form.get("sort_code") || "").toString().trim();
 
-    if (!name || !membership) {
-      return new Response("Name and membership number are required", {
+    if (!name) {
+      return new Response("Name is required", {
         status: 400,
         headers: corsHeaders(request)
       });
@@ -82,11 +82,18 @@ export default {
       });
     }
 
+    if ((form.get("declaration") || "").toString() !== "confirmed") {
+      return new Response("You must confirm the information provided is true and accurate", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
+
     // --- Collect expenses into structured rows ---
     const expenses = {};
 
     for (const [key, value] of form.entries()) {
-      if (key.startsWith("expense_")) {
+      if (key.startsWith("expense_") && !(value instanceof File)) {
         const [, index, field] = key.split("_"); // e.g. expense_1_amount
         if (!expenses[index]) expenses[index] = {};
         expenses[index][field] = value.toString().slice(0, MAX_FIELD_LENGTH);
@@ -169,7 +176,7 @@ export default {
       subject: `Expenses from ${name}`,
 
       text: `Name: ${name}
-Membership: ${membership}
+Membership: ${membership || "Not provided"}
 
 Expenses:
 ${expensesText}
@@ -177,13 +184,15 @@ ${expensesText}
 Bank Details:
 Account Number: ${accountNumber}
 Sort Code: ${sortCode}
+
+Declaration: ${name} confirmed the information above is true and accurate.
 `,
 
       html: `
         <h2>Expenses Submission</h2>
 
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-        <p><strong>Membership:</strong> ${escapeHtml(membership)}</p>
+        <p><strong>Membership:</strong> ${escapeHtml(membership) || "Not provided"}</p>
 
         <h3>Expenses</h3>
 
@@ -206,6 +215,8 @@ Sort Code: ${sortCode}
         <h3>Bank Details</h3>
         <p><strong>Account Number:</strong> ${accountNumber}</p>
         <p><strong>Sort Code:</strong> ${sortCode}</p>
+
+        <p style="color:#555;font-size:13px;">${escapeHtml(name)} confirmed the information above is true and accurate.</p>
       `,
 
       attachments

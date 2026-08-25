@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Expenses Form</title>
+  <title>EIS Edinburgh LA Expenses Form</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -10,11 +10,16 @@
     :root {
       --bg: #f5f7fa;
       --card: #ffffff;
-      --primary: #0066cc;
-      --primary-dark: #004c99;
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
       --border: #d9d9d9;
       --radius: 12px;
       --text: #222;
+      --muted: #667085;
+      --success: #1a7f37;
+      --success-bg: #e9f7ef;
+      --error: #c0362c;
+      --error-bg: #fdeceb;
     }
 
     * {
@@ -27,7 +32,7 @@
       margin: 0;
       padding: 16px;
       color: var(--text);
-      font-size: 18px; /* ⭐ Bigger base font for mobile */
+      font-size: 18px;
     }
 
     .container {
@@ -35,76 +40,218 @@
       margin: auto;
     }
 
+    header.page-header {
+      max-width: 600px;
+      margin: 4px auto 20px;
+      text-align: center;
+    }
+
+    header.page-header h1 {
+      font-size: 26px;
+      margin: 0 0 4px;
+    }
+
+    header.page-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
     .card {
       background: var(--card);
       padding: 20px;
       border-radius: var(--radius);
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    h2, h3 {
-      margin-top: 0;
-      font-weight: 600;
-      font-size: 24px;
+    .card h3 {
+      margin: 0 0 4px;
+      font-weight: 700;
+      font-size: 20px;
+      padding-left: 10px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .card .hint {
+      margin: 2px 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     label {
       display: block;
-      font-size: 16px;
+      font-size: 15px;
+      font-weight: 600;
       margin-top: 14px;
       margin-bottom: 6px;
+      color: var(--muted);
     }
 
-    input, button {
+    input {
       width: 100%;
-      padding: 16px; /* ⭐ Larger tap targets */
-      margin: 4px 0 14px 0;
+      padding: 14px;
+      margin: 0;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       font-size: 18px;
+      background: #fff;
+      color: var(--text);
     }
 
     input:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      font-size: 15px;
     }
 
     button {
-      background: var(--primary);
-      color: white;
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius);
       border: none;
-      cursor: pointer;
+      font-size: 18px;
       font-weight: 600;
-      font-size: 20px;
-      padding: 18px;
+      cursor: pointer;
     }
 
-    button:hover {
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
       background: var(--primary-dark);
+    }
+
+    .btn-primary:disabled {
+      background: #c9b3f5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px dashed var(--border);
+      margin-top: 14px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      background: #f5f0fe;
+    }
+
+    .btn-remove {
+      width: auto;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+      color: var(--error);
+      border: 1px solid transparent;
+    }
+
+    .btn-remove:hover {
+      background: var(--error-bg);
+      border-color: var(--error);
     }
 
     .expense-block {
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 16px;
-      margin-top: 16px;
+      margin-top: 14px;
       background: #fafbfc;
     }
 
+    .expense-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     .expense-title {
-      font-weight: 600;
-      margin-bottom: 10px;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 16px;
     }
 
     #totalDisplay {
       font-size: 22px;
       font-weight: bold;
-      margin-top: 16px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
       text-align: right;
       color: var(--primary-dark);
+    }
+
+    .declaration {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fafbfc;
+      margin-top: 6px;
+    }
+
+    .declaration input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+
+    .declaration label {
+      margin: 0;
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .status {
+      display: none;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .status.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top-color: #fff;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: -3px;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -112,68 +259,102 @@
 <body>
   <div class="container">
 
-    <div class="card">
-      <h2>Expenses Submission</h2>
+    <header class="page-header">
+      <h1>EIS Edinburgh LA Expenses Form</h1>
+      <p>Fill in your details, add each expense, and submit for reimbursement.</p>
+    </header>
 
-      <form id="expensesForm" enctype="multipart/form-data">
+    <div id="statusMessage" class="status" role="status"></div>
 
+    <form id="expensesForm" enctype="multipart/form-data" novalidate>
+
+      <div class="card">
+        <h3>Your Details</h3>
         <label>Name</label>
         <input type="text" name="name" placeholder="Your Name" required>
 
-        <label>Membership Number</label>
-        <input type="text" name="membership" placeholder="Membership Number" required>
+        <label>Membership Number <span style="font-weight:400;">(if known)</span></label>
+        <input type="text" name="membership" placeholder="Membership Number">
+      </div>
 
+      <div class="card">
         <h3>Expenses</h3>
+        <p class="hint">Add one line per expense, with its receipt attached.</p>
         <div id="expenses"></div>
 
-        <button type="button" onclick="addExpense()">+ Add Expense</button>
+        <button type="button" class="btn-secondary" id="addExpenseBtn">+ Add Expense</button>
 
         <div id="totalDisplay">Total: £0.00</div>
+      </div>
 
-        <h3>Receipts</h3>
-        <label>Receipt 1</label>
-        <input type="file" name="receipt1">
-        <label>Receipt 2</label>
-        <input type="file" name="receipt2">
-        <label>Receipt 3</label>
-        <input type="file" name="receipt3">
-
+      <div class="card">
         <h3>Bank Details</h3>
         <label>Account Number</label>
         <input type="text" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
 
         <label>Sort Code</label>
         <input type="text" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" required>
+      </div>
 
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+      <div class="card">
+        <div class="declaration">
+          <input type="checkbox" id="declaration" name="declaration" value="confirmed" required>
+          <label for="declaration">I confirm all the information provided in this expenses claim is true and accurate.</label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn" style="margin-top:16px;">Submit</button>
+      </div>
+    </form>
 
   </div>
 
   <script>
     let expenseCount = 0;
+    const expensesContainer = document.getElementById("expenses");
+    const form = document.getElementById("expensesForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusEl = document.getElementById("statusMessage");
+
+    function renumberExpenses() {
+      const titles = expensesContainer.querySelectorAll(".expense-title");
+      titles.forEach((el, i) => { el.textContent = `Expense ${i + 1}`; });
+    }
 
     function addExpense() {
       expenseCount++;
-      const container = document.getElementById("expenses");
+      const id = expenseCount;
 
       const block = document.createElement("div");
       block.className = "expense-block";
       block.innerHTML = `
-        <div class="expense-title">Expense ${expenseCount}</div>
+        <div class="expense-header">
+          <div class="expense-title">Expense</div>
+          <button type="button" class="btn-remove" data-remove>Remove</button>
+        </div>
 
         <label>Date</label>
-        <input type="date" name="expense_${expenseCount}_date" required>
+        <input type="date" name="expense_${id}_date" required>
 
         <label>Details</label>
-        <input type="text" name="expense_${expenseCount}_details" placeholder="Details" required>
+        <input type="text" name="expense_${id}_details" placeholder="Details" required>
 
         <label>Amount (£)</label>
-        <input type="number" name="expense_${expenseCount}_amount" placeholder="Amount (£)" step="0.01" required oninput="updateTotal()">
-      `;
-      container.appendChild(block);
+        <input type="number" name="expense_${id}_amount" placeholder="Amount (£)" step="0.01" min="0" required>
 
+        <label>Receipt</label>
+        <input type="file" name="expense_${id}_receipt" accept="image/*,application/pdf">
+      `;
+
+      block.querySelector("[data-remove]").addEventListener("click", () => {
+        block.remove();
+        renumberExpenses();
+        updateTotal();
+      });
+
+      block.querySelector(`input[name="expense_${id}_amount"]`).addEventListener("input", updateTotal);
+
+      expensesContainer.appendChild(block);
+      renumberExpenses();
       updateTotal();
     }
 
@@ -189,16 +370,57 @@
       document.getElementById("totalDisplay").textContent = `Total: £${total.toFixed(2)}`;
     }
 
-    document.getElementById("expensesForm").addEventListener("submit", async (e) => {
+    function showStatus(message, type) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+      statusEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("addExpenseBtn").addEventListener("click", addExpense);
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
 
-      const response = await fetch("https://expenses-backend.cjduffyexpenses.workers.dev/", {
-        method: "POST",
-        body: formData
-      });
+      if (expensesContainer.children.length === 0) {
+        showStatus("Add at least one expense before submitting.", "error");
+        return;
+      }
 
-      alert(await response.text());
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      statusEl.className = "status";
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://expenses-backend.cjduffyexpenses.workers.dev/", {
+          method: "POST",
+          body: formData
+        });
+
+        const text = await response.text();
+
+        if (response.ok) {
+          showStatus(text || "Expenses submitted successfully.", "success");
+          form.reset();
+          expensesContainer.innerHTML = "";
+          expenseCount = 0;
+          addExpense();
+        } else {
+          showStatus(text || "Something went wrong submitting your expenses.", "error");
+        }
+      } catch (err) {
+        showStatus("Network error — please check your connection and try again.", "error");
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit";
+      }
     });
 
     addExpense();
