@@ -300,7 +300,7 @@
         <input type="text" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
 
         <label>Sort Code</label>
-        <input type="text" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" required>
+        <input type="text" id="sortCode" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" maxlength="8" required>
       </div>
 
       <div class="card">
@@ -384,6 +384,11 @@
     }
 
     document.getElementById("addExpenseBtn").addEventListener("click", addExpense);
+
+    document.getElementById("sortCode").addEventListener("input", (e) => {
+      const digits = e.target.value.replace(/\D/g, "").slice(0, 6);
+      e.target.value = digits.match(/.{1,2}/g)?.join("-") || digits;
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

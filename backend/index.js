@@ -179,7 +179,7 @@ export default {
     // --- Build email payload ---
     const emailPayload = {
       from: "Expenses Form <onboarding@resend.dev>",
-      to: ["9084082@ea.edin.sch.uk"],
+      to: ["9084082+expenses@ea.edin.sch.uk"],
       reply_to: [email],
 
       subject: `Expenses from ${name}`,
