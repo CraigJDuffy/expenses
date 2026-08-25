@@ -383,6 +383,33 @@
       statusEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    const PERSISTED_FIELDS = ["name", "email", "membership"];
+    const STORAGE_PREFIX = "eisExpensesForm:";
+
+    function loadPersistedFields() {
+      PERSISTED_FIELDS.forEach((fieldName) => {
+        try {
+          const saved = localStorage.getItem(STORAGE_PREFIX + fieldName);
+          const input = form.querySelector(`[name="${fieldName}"]`);
+          if (saved && input) input.value = saved;
+        } catch (err) {
+          // localStorage unavailable (e.g. private browsing) — skip
+        }
+      });
+    }
+
+    PERSISTED_FIELDS.forEach((fieldName) => {
+      const input = form.querySelector(`[name="${fieldName}"]`);
+      if (!input) return;
+      input.addEventListener("input", () => {
+        try {
+          localStorage.setItem(STORAGE_PREFIX + fieldName, input.value);
+        } catch (err) {
+          // localStorage unavailable (e.g. private browsing) — skip
+        }
+      });
+    });
+
     document.getElementById("addExpenseBtn").addEventListener("click", addExpense);
 
     document.getElementById("sortCode").addEventListener("input", (e) => {
@@ -420,6 +447,7 @@
         if (response.ok) {
           showStatus(text || "Expenses submitted successfully.", "success");
           form.reset();
+          loadPersistedFields();
           expensesContainer.innerHTML = "";
           expenseCount = 0;
           addExpense();
@@ -436,6 +464,7 @@
     });
 
     addExpense();
+    loadPersistedFields();
   </script>
 
 </body>

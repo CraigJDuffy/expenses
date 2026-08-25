@@ -15,6 +15,10 @@ function arrayBufferToBase64(buffer) {
   return btoa(binary);
 }
 
+function sanitizeLine(value) {
+  return value.replace(/[\r\n]+/g, " ");
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;",
@@ -54,11 +58,19 @@ export default {
       });
     }
 
-    const form = await request.formData();
+    let form;
+    try {
+      form = await request.formData();
+    } catch (err) {
+      return new Response("Invalid form data", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
 
-    const name = (form.get("name") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
+    const name = sanitizeLine((form.get("name") || "").toString().trim()).slice(0, MAX_FIELD_LENGTH);
     const email = (form.get("email") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
-    const membership = (form.get("membership") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
+    const membership = sanitizeLine((form.get("membership") || "").toString().trim()).slice(0, MAX_FIELD_LENGTH);
     const accountNumber = (form.get("account_number") || "").toString().trim();
     const sortCode = (form.get("sort_code") || "").toString().trim();
 
@@ -69,7 +81,7 @@ export default {
       });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(email)) {
       return new Response("A valid email address is required", {
         status: 400,
         headers: corsHeaders(request)
@@ -104,7 +116,7 @@ export default {
       if (key.startsWith("expense_") && !(value instanceof File)) {
         const [, index, field] = key.split("_"); // e.g. expense_1_amount
         if (!expenses[index]) expenses[index] = {};
-        expenses[index][field] = value.toString().slice(0, MAX_FIELD_LENGTH);
+        expenses[index][field] = sanitizeLine(value.toString()).slice(0, MAX_FIELD_LENGTH);
       }
     }
 
@@ -155,6 +167,12 @@ export default {
     let totalAttachmentBytes = 0;
     for (const [key, value] of form.entries()) {
       if (value instanceof File && value.size > 0) {
+        if (value.type !== "application/pdf" && !value.type.startsWith("image/")) {
+          return new Response(`Attachment "${value.name}" must be an image or PDF`, {
+            status: 400,
+            headers: corsHeaders(request)
+          });
+        }
         if (value.size > MAX_ATTACHMENT_BYTES) {
           return new Response(`Attachment "${value.name}" exceeds the size limit`, {
             status: 400,
@@ -179,7 +197,7 @@ export default {
     // --- Build email payload ---
     const emailPayload = {
       from: "Expenses Form <onboarding@resend.dev>",
-      to: ["9084082+expenses@ea.edin.sch.uk"],
+      to: ["9084082@ea.edin.sch.uk"],
       reply_to: [email],
 
       subject: `Expenses from ${name}`,
@@ -234,14 +252,23 @@ Declaration: ${name} confirmed the information above is true and accurate.
     };
 
     // --- Send email via Resend ---
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${env.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(emailPayload)
-    });
+    let response;
+    try {
+      response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(emailPayload)
+      });
+    } catch (err) {
+      console.log("Resend request failed:", err);
+      return new Response("Email failed to send", {
+        status: 502,
+        headers: corsHeaders(request)
+      });
+    }
 
     const resendText = await response.text();
     console.log("Resend response:", resendText);
