@@ -140,10 +140,10 @@
 
         <h3>Bank Details</h3>
         <label>Account Number</label>
-        <input type="text" name="account_number" placeholder="Account Number" required>
+        <input type="text" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
 
         <label>Sort Code</label>
-        <input type="text" name="sort_code" placeholder="Sort Code" required>
+        <input type="text" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" required>
 
         <button type="submit">Submit</button>
       </form>

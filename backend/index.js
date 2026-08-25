@@ -1,3 +1,10 @@
+const ALLOWED_ORIGIN = "https://craigjduffy.github.io";
+
+const MAX_EXPENSES = 50;
+const MAX_FIELD_LENGTH = 200;
+const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024; // per file
+const MAX_TOTAL_ATTACHMENT_BYTES = 20 * 1024 * 1024; // per submission
+
 function arrayBufferToBase64(buffer) {
   let binary = "";
   const bytes = new Uint8Array(buffer);
@@ -8,17 +15,33 @@ function arrayBufferToBase64(buffer) {
   return btoa(binary);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
+}
+
+function corsHeaders(request) {
+  const origin = request.headers.get("Origin");
+  return {
+    "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN,
+    "Vary": "Origin"
+  };
+}
+
 export default {
   async fetch(request, env) {
-
-    console.log("Worker started");
 
     // --- CORS preflight ---
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "*",
+          ...corsHeaders(request),
+          "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Allow-Methods": "POST, OPTIONS"
         }
       });
@@ -27,21 +50,37 @@ export default {
     if (request.method !== "POST") {
       return new Response("Only POST allowed", {
         status: 405,
-        headers: { "Access-Control-Allow-Origin": "*" }
+        headers: corsHeaders(request)
       });
     }
 
     const form = await request.formData();
 
-    const name = form.get("name");
-    const membership = form.get("membership");
-    const accountNumber = form.get("account_number");
-    const sortCode = form.get("sort_code");
+    const name = (form.get("name") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
+    const membership = (form.get("membership") || "").toString().trim().slice(0, MAX_FIELD_LENGTH);
+    const accountNumber = (form.get("account_number") || "").toString().trim();
+    const sortCode = (form.get("sort_code") || "").toString().trim();
 
-    console.log("Name:", name);
-    console.log("Membership:", membership);
-    console.log("Account Number:", accountNumber);
-    console.log("Sort Code:", sortCode);
+    if (!name || !membership) {
+      return new Response("Name and membership number are required", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
+
+    if (!/^\d{6,8}$/.test(accountNumber)) {
+      return new Response("Account number must be 6-8 digits", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
+
+    if (!/^\d{2}-?\d{2}-?\d{2}$/.test(sortCode)) {
+      return new Response("Sort code must be in the form 00-00-00", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
 
     // --- Collect expenses into structured rows ---
     const expenses = {};
@@ -50,23 +89,37 @@ export default {
       if (key.startsWith("expense_")) {
         const [, index, field] = key.split("_"); // e.g. expense_1_amount
         if (!expenses[index]) expenses[index] = {};
-        expenses[index][field] = value;
+        expenses[index][field] = value.toString().slice(0, MAX_FIELD_LENGTH);
       }
+    }
+
+    const expenseIndexes = Object.keys(expenses);
+    if (expenseIndexes.length === 0) {
+      return new Response("At least one expense is required", {
+        status: 400,
+        headers: corsHeaders(request)
+      });
+    }
+    if (expenseIndexes.length > MAX_EXPENSES) {
+      return new Response(`Too many expenses (max ${MAX_EXPENSES})`, {
+        status: 400,
+        headers: corsHeaders(request)
+      });
     }
 
     // Build HTML table rows + running total
     let expensesTableRows = "";
     let totalAmount = 0;
 
-    for (const index in expenses) {
+    for (const index of expenseIndexes) {
       const row = expenses[index];
       const amount = parseFloat(row.amount || "0") || 0;
       totalAmount += amount;
 
       expensesTableRows += `
         <tr>
-          <td>${row.date || ""}</td>
-          <td>${row.details || ""}</td>
+          <td>${escapeHtml(row.date)}</td>
+          <td>${escapeHtml(row.details)}</td>
           <td>£${amount.toFixed(2)}</td>
         </tr>
       `;
@@ -74,7 +127,7 @@ export default {
 
     // Plain‑text fallback
     let expensesText = "";
-    for (const index in expenses) {
+    for (const index of expenseIndexes) {
       const row = expenses[index];
       const amount = parseFloat(row.amount || "0") || 0;
       expensesText += `Date: ${row.date}, Details: ${row.details}, Amount: £${amount.toFixed(2)}\n`;
@@ -84,8 +137,22 @@ export default {
 
     // --- Collect attachments ---
     const attachments = [];
+    let totalAttachmentBytes = 0;
     for (const [key, value] of form.entries()) {
       if (value instanceof File && value.size > 0) {
+        if (value.size > MAX_ATTACHMENT_BYTES) {
+          return new Response(`Attachment "${value.name}" exceeds the size limit`, {
+            status: 400,
+            headers: corsHeaders(request)
+          });
+        }
+        totalAttachmentBytes += value.size;
+        if (totalAttachmentBytes > MAX_TOTAL_ATTACHMENT_BYTES) {
+          return new Response("Attachments exceed the total size limit", {
+            status: 400,
+            headers: corsHeaders(request)
+          });
+        }
         const buffer = await value.arrayBuffer();
         attachments.push({
           filename: value.name,
@@ -115,8 +182,8 @@ Sort Code: ${sortCode}
       html: `
         <h2>Expenses Submission</h2>
 
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Membership:</strong> ${membership}</p>
+        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+        <p><strong>Membership:</strong> ${escapeHtml(membership)}</p>
 
         <h3>Expenses</h3>
 
@@ -160,14 +227,12 @@ Sort Code: ${sortCode}
     if (!response.ok) {
       return new Response("Email failed to send", {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*"
-        }
+        headers: corsHeaders(request)
       });
     }
 
     return new Response("Expenses submitted successfully", {
-      headers: { "Access-Control-Allow-Origin": "*" }
+      headers: corsHeaders(request)
     });
   }
 };
