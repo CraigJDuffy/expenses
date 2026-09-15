@@ -503,6 +503,17 @@
 
       showStatus("Opening your email app… remember to attach your receipts before sending.", "info");
       window.location.href = mailtoLink;
+
+      form.reset();
+      loadPersistedFields();
+      expensesContainer.innerHTML = "";
+      expenseCount = 0;
+      addExpense();
+
+      const accountNumberInput = document.getElementById("accountNumber");
+      const sortCodeInput = document.getElementById("sortCode");
+      accountNumberInput.disabled = false;
+      sortCodeInput.disabled = false;
     });
 
     addExpense();
