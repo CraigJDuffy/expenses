@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>EIS Edinburgh LA Expenses Form (Email)</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --border: #d9d9d9;
+      --radius: 12px;
+      --text: #222;
+      --muted: #667085;
+      --success: #1a7f37;
+      --success-bg: #e9f7ef;
+      --error: #c0362c;
+      --error-bg: #fdeceb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      background: var(--bg);
+      margin: 0;
+      padding: 16px;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    header.page-header {
+      max-width: 600px;
+      margin: 4px auto 20px;
+      text-align: center;
+    }
+
+    header.page-header h1 {
+      font-size: 26px;
+      margin: 0 0 4px;
+    }
+
+    header.page-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 4px;
+      font-weight: 700;
+      font-size: 20px;
+      padding-left: 10px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .card .hint {
+      margin: 2px 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 0;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      font-size: 18px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+
+    input[type="date"] {
+      max-width: 200px;
+    }
+
+    input:disabled {
+      background: #f1f2f4;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius);
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px dashed var(--border);
+      margin-top: 14px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      background: #f5f0fe;
+    }
+
+    .btn-remove {
+      width: auto;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+      color: var(--error);
+      border: 1px solid transparent;
+    }
+
+    .btn-remove:hover {
+      background: var(--error-bg);
+      border-color: var(--error);
+    }
+
+    .expense-block {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 14px;
+      background: #fafbfc;
+    }
+
+    .expense-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .expense-title {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    #totalDisplay {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      text-align: right;
+      color: var(--primary-dark);
+    }
+
+    .declaration {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fafbfc;
+      margin-top: 6px;
+    }
+
+    .declaration input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+
+    .declaration label {
+      margin: 0;
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .status {
+      display: none;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .status.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .status.info {
+      display: block;
+      background: #eef2ff;
+      color: var(--primary-dark);
+    }
+
+    .notice {
+      font-size: 14px;
+      color: var(--muted);
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header class="page-header">
+      <h1>EIS Edinburgh LA Expenses Form</h1>
+      <p>Email version &mdash; no server required. Fill in your details, add each expense, and click Submit to open a pre-filled email in your mail app.</p>
+    </header>
+
+    <div class="notice">
+      This version sends your claim as an email from your own mail app &mdash;
+      it does not upload anything to a server. <strong>Receipts are not
+      attached automatically.</strong> After your email draft opens, attach
+      your receipt photos/PDFs yourself before sending.
+    </div>
+
+    <div id="statusMessage" class="status" role="status"></div>
+
+    <form id="expensesForm" novalidate>
+
+      <div class="card">
+        <h3>Your Details</h3>
+        <label>Name</label>
+        <input type="text" name="name" placeholder="Your Name" required>
+
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+
+        <label>Membership Number <span style="font-weight:400;">(if known)</span></label>
+        <input type="text" name="membership" placeholder="Membership Number">
+      </div>
+
+      <div class="card">
+        <h3>Expenses</h3>
+        <p class="hint">Add one line per expense. Have your receipts ready to attach to the email before sending.</p>
+        <div id="expenses"></div>
+
+        <button type="button" class="btn-secondary" id="addExpenseBtn">+ Add Expense</button>
+
+        <div id="totalDisplay">Total: £0.00</div>
+      </div>
+
+      <div class="card">
+        <h3>Bank Details</h3>
+
+        <div class="declaration">
+          <input type="checkbox" id="useExistingBank" name="use_existing_bank_details" value="true">
+          <label for="useExistingBank">Use bank details EIS Edinburgh already have for me</label>
+        </div>
+
+        <label>Account Number</label>
+        <input type="text" id="accountNumber" name="account_number" placeholder="Account Number" inputmode="numeric" pattern="\d{6,8}" title="6-8 digits" required>
+
+        <label>Sort Code</label>
+        <input type="text" id="sortCode" name="sort_code" placeholder="00-00-00" inputmode="numeric" pattern="\d{2}-?\d{2}-?\d{2}" title="Format: 00-00-00" maxlength="8" required>
+      </div>
+
+      <div class="card">
+        <div class="declaration">
+          <input type="checkbox" id="declaration" name="declaration" value="confirmed" required>
+          <label for="declaration">I confirm all the information provided in this expenses claim is true and accurate.</label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn" style="margin-top:16px;">Open Email to Submit</button>
+      </div>
+    </form>
+
+  </div>
+
+  <script>
+    const RECIPIENT_EMAIL = "9084082@ea.edin.sch.uk";
+
+    let expenseCount = 0;
+    const expensesContainer = document.getElementById("expenses");
+    const form = document.getElementById("expensesForm");
+    const statusEl = document.getElementById("statusMessage");
+
+    function renumberExpenses() {
+      const titles = expensesContainer.querySelectorAll(".expense-title");
+      titles.forEach((el, i) => { el.textContent = `Expense ${i + 1}`; });
+    }
+
+    function addExpense() {
+      expenseCount++;
+      const id = expenseCount;
+
+      const block = document.createElement("div");
+      block.className = "expense-block";
+      block.innerHTML = `
+        <div class="expense-header">
+          <div class="expense-title">Expense</div>
+          <button type="button" class="btn-remove" data-remove>Remove</button>
+        </div>
+
+        <label>Date</label>
+        <input type="date" name="expense_${id}_date" required>
+
+        <label>Details</label>
+        <input type="text" name="expense_${id}_details" placeholder="Details" required>
+
+        <label>Amount (£)</label>
+        <input type="number" name="expense_${id}_amount" placeholder="Amount (£)" step="0.01" min="0" required>
+      `;
+
+      block.querySelector("[data-remove]").addEventListener("click", () => {
+        block.remove();
+        renumberExpenses();
+        updateTotal();
+      });
+
+      block.querySelector(`input[name="expense_${id}_amount"]`).addEventListener("input", updateTotal);
+
+      expensesContainer.appendChild(block);
+      renumberExpenses();
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let total = 0;
+      const amountInputs = document.querySelectorAll('input[name^="expense_"][name$="_amount"]');
+
+      amountInputs.forEach(input => {
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) total += value;
+      });
+
+      document.getElementById("totalDisplay").textContent = `Total: £${total.toFixed(2)}`;
+    }
+
+    function showStatus(message, type) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+      statusEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const PERSISTED_FIELDS = ["name", "email", "membership"];
+    const STORAGE_PREFIX = "eisExpensesFormMailto:";
+
+    function loadPersistedFields() {
+      PERSISTED_FIELDS.forEach((fieldName) => {
+        try {
+          const saved = localStorage.getItem(STORAGE_PREFIX + fieldName);
+          const input = form.querySelector(`[name="${fieldName}"]`);
+          if (saved && input) input.value = saved;
+        } catch (err) {
+          // localStorage unavailable (e.g. private browsing) — skip
+        }
+      });
+    }
+
+    PERSISTED_FIELDS.forEach((fieldName) => {
+      const input = form.querySelector(`[name="${fieldName}"]`);
+      if (!input) return;
+      input.addEventListener("input", () => {
+        try {
+          localStorage.setItem(STORAGE_PREFIX + fieldName, input.value);
+        } catch (err) {
+          // localStorage unavailable (e.g. private browsing) — skip
+        }
+      });
+    });
+
+    document.getElementById("addExpenseBtn").addEventListener("click", addExpense);
+
+    document.getElementById("sortCode").addEventListener("input", (e) => {
+      const digits = e.target.value.replace(/\D/g, "").slice(0, 6);
+      e.target.value = digits.match(/.{1,2}/g)?.join("-") || digits;
+    });
+
+    document.getElementById("useExistingBank").addEventListener("change", (e) => {
+      const accountNumberInput = document.getElementById("accountNumber");
+      const sortCodeInput = document.getElementById("sortCode");
+      accountNumberInput.disabled = e.target.checked;
+      sortCodeInput.disabled = e.target.checked;
+      if (e.target.checked) {
+        accountNumberInput.value = "";
+        sortCodeInput.value = "";
+      }
+    });
+
+    function buildEmailBody(data, expenses, total) {
+      const lines = [];
+      lines.push("EIS Edinburgh LA Expenses Claim");
+      lines.push("");
+      lines.push(`Name: ${data.name}`);
+      lines.push(`Email: ${data.email}`);
+      if (data.membership) lines.push(`Membership Number: ${data.membership}`);
+      lines.push("");
+      lines.push("Expenses:");
+      expenses.forEach((exp, i) => {
+        lines.push(`  ${i + 1}. ${exp.date} — ${exp.details} — £${exp.amount}`);
+      });
+      lines.push("");
+      lines.push(`Total: £${total.toFixed(2)}`);
+      lines.push("");
+      lines.push("Bank Details:");
+      if (data.useExistingBank) {
+        lines.push("  (Use bank details EIS Edinburgh already have on file)");
+      } else {
+        lines.push(`  Account Number: ${data.accountNumber}`);
+        lines.push(`  Sort Code: ${data.sortCode}`);
+      }
+      lines.push("");
+      lines.push("Declaration: I confirm all the information provided in this expenses claim is true and accurate.");
+      lines.push("");
+      lines.push("*** Please remember to attach your receipt photos/PDFs to this email before sending. ***");
+      return lines.join("\n");
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      if (expensesContainer.children.length === 0) {
+        showStatus("Add at least one expense before submitting.", "error");
+        return;
+      }
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const formData = new FormData(form);
+
+      const expenses = [];
+      let total = 0;
+      let i = 1;
+      while (formData.has(`expense_${i}_details`)) {
+        const amount = parseFloat(formData.get(`expense_${i}_amount`)) || 0;
+        total += amount;
+        expenses.push({
+          date: formData.get(`expense_${i}_date`),
+          details: formData.get(`expense_${i}_details`),
+          amount: amount.toFixed(2)
+        });
+        i++;
+      }
+
+      const data = {
+        name: formData.get("name"),
+        email: formData.get("email"),
+        membership: formData.get("membership"),
+        useExistingBank: formData.get("use_existing_bank_details") === "true",
+        accountNumber: formData.get("account_number"),
+        sortCode: formData.get("sort_code")
+      };
+
+      const subject = `Expenses Claim — ${data.name}`;
+      const body = buildEmailBody(data, expenses, total);
+
+      const mailtoLink = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      showStatus("Opening your email app… remember to attach your receipts before sending.", "info");
+      window.location.href = mailtoLink;
+    });
+
+    addExpense();
+    loadPersistedFields();
+  </script>
+
+</body>
+</html>
