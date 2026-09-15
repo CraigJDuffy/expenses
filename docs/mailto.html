@@ -429,6 +429,24 @@
       }
     });
 
+    function formatExpensesTable(expenses) {
+      const headers = ["#", "Date", "Details", "Amount"];
+      const rows = expenses.map((exp, i) => [String(i + 1), exp.date, exp.details, `£${exp.amount}`]);
+      const colWidths = headers.map((h, col) =>
+        Math.max(h.length, ...rows.map(r => r[col].length))
+      );
+
+      const formatRow = (cols) => cols
+        .map((c, i) => i === cols.length - 1 ? c.padStart(colWidths[i]) : c.padEnd(colWidths[i]))
+        .join(" | ");
+
+      const lines = [];
+      lines.push(formatRow(headers));
+      lines.push(colWidths.map(w => "-".repeat(w)).join("-+-"));
+      rows.forEach(r => lines.push(formatRow(r)));
+      return lines.join("\n");
+    }
+
     function buildEmailBody(data, expenses, total) {
       const lines = [];
       lines.push("EIS Edinburgh LA Expenses Claim");
@@ -438,9 +456,8 @@
       if (data.membership) lines.push(`Membership Number: ${data.membership}`);
       lines.push("");
       lines.push("Expenses:");
-      expenses.forEach((exp, i) => {
-        lines.push(`  ${i + 1}. ${exp.date} — ${exp.details} — £${exp.amount}`);
-      });
+      lines.push("");
+      lines.push(formatExpensesTable(expenses));
       lines.push("");
       lines.push(`Total: £${total.toFixed(2)}`);
       lines.push("");
