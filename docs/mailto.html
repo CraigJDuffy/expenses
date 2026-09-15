@@ -394,7 +394,7 @@
           const input = form.querySelector(`[name="${fieldName}"]`);
           if (saved && input) input.value = saved;
         } catch (err) {
-          // localStorage unavailable (e.g. private browsing) — skip
+          // localStorage unavailable (e.g. private browsing), skip
         }
       });
     }
@@ -406,7 +406,7 @@
         try {
           localStorage.setItem(STORAGE_PREFIX + fieldName, input.value);
         } catch (err) {
-          // localStorage unavailable (e.g. private browsing) — skip
+          // localStorage unavailable (e.g. private browsing), skip
         }
       });
     });
@@ -439,7 +439,7 @@
       lines.push("");
       lines.push("Expenses:");
       expenses.forEach((exp, i) => {
-        lines.push(`  ${i + 1}. ${exp.date} — ${exp.details} — £${exp.amount}`);
+        lines.push(`  ${i + 1}. ${exp.date} - ${exp.details} - £${exp.amount}`);
       });
       lines.push("");
       lines.push(`Total: £${total.toFixed(2)}`);
@@ -496,7 +496,7 @@
         sortCode: formData.get("sort_code")
       };
 
-      const subject = `Expenses Claim — ${data.name}`;
+      const subject = `Expenses Claim - ${data.name}`;
       const body = buildEmailBody(data, expenses, total);
 
       const mailtoLink = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
